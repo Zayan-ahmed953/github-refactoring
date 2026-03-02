@@ -283,6 +283,4 @@ Only these change:
 - Alias repoints automatically  
 - Zero downtime achieved  
 
-Convert this doc in markdown format 
-
 

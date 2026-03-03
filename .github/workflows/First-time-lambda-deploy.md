@@ -124,19 +124,27 @@ module "my_lambda" {
                                ▼
                 ┌─────────────────────────────┐
                 │ Workflow will be triggerd   │
-                │ cd environments/uat         │
+                │ cd environments/uat         │  # This will deploy to UAT env
                 │ terraform apply             │
                 └──────────────┬──────────────┘
                                │
                                ▼
                 ┌─────────────────────────────┐
-                │ Update the prod environment |
+                │ Update the prod environment | # Once testing has been done in uat env we will proceed to promote prod
                 |        terraform            │
                 └──────────────┬──────────────┘
                                │
                                ▼
                 ┌─────────────────────────────┐
-                │ Promote to PROD (Approval)  │
+                │ Raise PR from uat branch    |
+                |        to main branch)      │ 
+                └──────────────|──────────────┘
+                               │
+                               ▼
+                ┌─────────────────────────────┐
+                │ Workflow will require manual| 
+                |  approval before deploying  |
+                |            to prod          │ 
                 └──────────────|──────────────┘
                                │
                                ▼
@@ -305,24 +313,6 @@ Avoid manual resource creation outside Terraform.
 
 ---
 
-# IAM Requirements
-
-Pipeline IAM principal must have:
-
-- lambda:CreateFunction
-- lambda:UpdateFunctionCode
-- iam:CreateRole
-- iam:AttachRolePolicy
-- logs:CreateLogGroup
-- s3:GetObject (if using artifact bucket)
-
-And:
-
-- secretsmanager:GetSecretValue (if using Secrets Manager)
-
-Permissions must exist in each environment’s AWS account.
-
----
 
 # Secret Injection for Lambda
 
@@ -415,17 +405,6 @@ Live
 
 ---
 
-# Risk Controls
-
-✔ Separate AWS accounts per environment  
-✔ Separate state backend per environment  
-✔ No shared credentials  
-✔ No manual AWS console resources  
-✔ Terraform-only lifecycle  
-✔ Security scanning before deployment  
-✔ Secrets externalized  
-
----
 
 # Summary
 

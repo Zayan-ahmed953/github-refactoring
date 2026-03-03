@@ -22,18 +22,18 @@ This plan ensures:
 
 # Deployment Strategy Overview
 
-We deploy new Lambda functions using Terraform via the existing environment-based pipeline model.
+We deploy new Lambda functions using Terraform via the existing environment-based pipeline model and **branch-based promotion** between `dev`, `uat`, and `prod`.
 
 High-level flow:
 
-1. Developer adds Lambda code under `lambda/functions/`
+1. Developer adds Lambda code under `lambda/functions/` on the **dev branch**
 2. Terraform module (`modules/lambda`) is updated or reused
-3. Environment `main.tf` references the Lambda module
-4. PR created → KICS + Validation
-5. Merge to main
-6. Deploy to `dev`
-7. Promote to `uat`
-8. Promote to `prod` (manual approval required)
+3. `environments/dev/main.tf` references the Lambda module
+4. Terraform is applied to the **dev AWS account** to test and validate the new Lambda
+5. After dev testing, `environments/uat/main.tf` is updated on the **uat branch** to reference the same Lambda module/function
+6. A PR is opened from **dev → uat**; KICS + validation run; on merge, the workflow applies Terraform for `environments/uat`
+7. After UAT validation, `environments/prod/main.tf` is updated on the **prod branch**
+8. A PR is opened from **uat → prod`**, with manual approval required before the workflow applies Terraform for `environments/prod`
 
 ---
 
@@ -190,6 +190,8 @@ For first-time deployment, Option A is simpler.
 
 ## Step 3 — Update Environment Configuration
 
+### Dev environment
+
 In:
 
 ```
@@ -207,7 +209,27 @@ module "my_new_lambda" {
 }
 ```
 
-Repeat for uat and prod as needed.
+Commit this change to the **dev branch**. Applying Terraform from `environments/dev` will create and wire the Lambda for the dev AWS account.
+
+### UAT environment
+
+After the Lambda is tested and validated in dev, update:
+
+```
+environments/uat/main.tf
+```
+
+to reference the same module/function (for example, `environment = "uat"` and any UAT-specific settings). Open a PR with **base branch = uat** and **head/source branch = dev** so that, on merge, the UAT workflow applies Terraform from `environments/uat`.
+
+### Prod environment
+
+Once UAT validation is complete, update:
+
+```
+environments/prod/main.tf
+```
+
+to reference the same module/function for production (for example, `environment = "prod"` and prod-specific settings). Open a PR with **base branch = prod** and **head/source branch = uat`; merging this PR (with required approval) triggers the prod workflow and applies Terraform from `environments/prod`.
 
 ---
 
@@ -240,11 +262,11 @@ No manual AWS console work required.
 
 ## DEV → UAT → PROD
 
-Deployment order:
+Deployment order (branch + environment):
 
-1. DEV automatic
-2. UAT manual or workflow-triggered
-3. PROD requires approval
+1. **DEV** – changes merged into the dev branch; Terraform runs in `environments/dev` against the dev AWS account
+2. **UAT** – PR from dev → uat; on merge, Terraform runs in `environments/uat` against the uat AWS account
+3. **PROD** – PR from uat → prod; on merge (with approval), Terraform runs in `environments/prod` against the prod AWS account
 
 Promotion means:
 
@@ -349,14 +371,14 @@ No secrets in pipeline logs.
 
 # CI/CD Deployment Model
 
-For first-time deployment:
+For first-time deployment (branch-based):
 
 ```
-PR → Merge → Deploy DEV
-       ↓
-Manual Trigger → Deploy UAT
-       ↓
-Approval Gate → Deploy PROD
+Feature PR → Merge into dev branch → Deploy DEV
+                      ↓
+             PR dev → uat → Deploy UAT
+                      ↓
+      PR uat → prod (Approval Gate) → Deploy PROD
 ```
 
 No direct PROD deployment without:

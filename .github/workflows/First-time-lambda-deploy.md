@@ -137,6 +137,13 @@ module "my_lambda" {
                                ▼
                 ┌─────────────────────────────┐
                 │ Promote to PROD (Approval)  │
+                └──────────────|──────────────┘
+                               │
+                               ▼
+                ┌─────────────────────────────┐
+                │  Workflow will be triggerd  │
+                │  cd environments/prod       │
+                │  terraform apply            |
                 └─────────────────────────────┘
 ```
 

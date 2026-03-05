@@ -1,0 +1,161 @@
+name: Terraform Multi-Env Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - uat
+          - prod
+      action:
+        description: "Terraform action"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+env:
+  # Default region; Terraform providers and backends use per-env config,
+  # but this keeps AWS SDK/CLI aligned.
+  AWS_REGION: us-east-1
+
+jobs:
+  validate:
+    name: Validate Terraform & KICS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Terraform working directory
+        id: set-workdir
+        run: echo "TF_WORKDIR=environments/${{ inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Terraform fmt & validate (no backend)
+        run: |
+          terraform -chdir="$TF_WORKDIR" fmt -check
+          terraform -chdir="$TF_WORKDIR" init -backend=false
+          terraform -chdir="$TF_WORKDIR" validate
+
+      # Static KICS scan before any real backend/API calls
+      - name: Run KICS scan
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" checkmarx/kics:latest scan \
+            -p /src \
+            --report-formats "sarif,json" \
+            --fail-on CRITICAL \
+            --severity-threshold CRITICAL \
+            -o /src/kics-results
+
+      - name: Upload KICS results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kics-results-${{ inputs.environment }}
+          path: kics-results
+
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Terraform working directory
+        run: echo "TF_WORKDIR=environments/${{ inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Select AWS role for environment
+        run: |
+          if [ "${{ inputs.environment }}" = "dev" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_DEV }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" = "uat" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_UAT }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_PROD }}" >> $GITHUB_ENV
+          else
+            echo "Unknown environment: ${{ inputs.environment }}"
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform init (with backend)
+        run: terraform -chdir="$TF_WORKDIR" init -input=false
+
+      - name: Terraform plan
+        run: terraform -chdir="$TF_WORKDIR" plan -var-file="${{ inputs.environment }}.tfvars" -out="tfplan"
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ inputs.environment }}
+          path: ${{ env.TF_WORKDIR }}/tfplan
+
+  apply_or_destroy:
+    name: Terraform Apply/Destroy
+    runs-on: ubuntu-latest
+    needs: plan
+    # Only run when action is apply or destroy
+    if: inputs.action != 'plan'
+
+    # Allows environment protection rules (e.g. manual approval for prod)
+    environment:
+      name: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Terraform working directory
+        run: echo "TF_WORKDIR=environments/${{ inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Select AWS role for environment
+        run: |
+          if [ "${{ inputs.environment }}" = "dev" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_DEV }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" = "uat" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_UAT }}" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_PROD }}" >> $GITHUB_ENV
+          else
+            echo "Unknown environment: ${{ inputs.environment }}"
+            exit 1
+          fi
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download plan artifact
+        if: inputs.action == 'apply'
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ inputs.environment }}
+          path: ${{ env.TF_WORKDIR }}
+
+      - name: Terraform apply (using saved plan)
+        if: inputs.action == 'apply'
+        run: terraform -chdir="$TF_WORKDIR" apply -input=false "tfplan"
+
+      - name: Terraform destroy
+        if: inputs.action == 'destroy'
+        run: terraform -chdir="$TF_WORKDIR" destroy -var-file="${{ inputs.environment }}.tfvars" -auto-approve
+
+
+
+

@@ -136,6 +136,7 @@ module "my_lambda" {
                                │
                                ▼
                 ┌─────────────────────────────┐
+<<<<<<< HEAD
                 │ Raise PR from uat branch    |
                 |        to main branch)      │ 
                 └──────────────|──────────────┘
@@ -145,6 +146,9 @@ module "my_lambda" {
                 │ Workflow will require manual| 
                 |  approval before deploying  |
                 |            to prod          │ 
+=======
+                │ Promote to PROD (Approval)  │
+>>>>>>> 7ef2a46 (updated with the code itself)
                 └──────────────|──────────────┘
                                │
                                ▼

@@ -102,7 +102,7 @@ Central place for **Python** (`.py`) and **YAML** (`.yaml`) used with Terraform 
 
 | Environment | AWS account | State backend |
 |-------------|-------------|---------------|
-| **dev** | Dev AWS account | S3 bucket in dev account (e.g. `myorg-terraform-state-dev`) |
+| **dev** | Dev AWS account | S3 bucket in dev account (e.g. `myorg-terraform-state-dev-yoyo`) |
 | **uat** | UAT AWS account | S3 bucket in uat account (e.g. `myorg-terraform-state-uat`) |
 | **prod** | Prod AWS account | S3 bucket in prod account (e.g. `myorg-terraform-state-prod`) |
 

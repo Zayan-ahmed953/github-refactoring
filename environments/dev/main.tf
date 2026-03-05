@@ -12,8 +12,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region = var.aws_region
 }
 
 module "app_lambda" {
@@ -80,4 +79,5 @@ module "http_api" {
       lambda_alias_arn  = module.api_lambda.lambda_alias_arn
     }
   }
+
 }

@@ -1,0 +1,27 @@
+name: Terraform Dev Destroy (Self-hosted)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-dev-destroy:
+    name: Terraform destroy (dev)
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+
+    defaults:
+      run:
+        working-directory: environments/dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform destroy
+        run: terraform destroy --var-file=dev.tfvars --auto-approve
+

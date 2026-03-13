@@ -1,3 +1,19 @@
-# Generated or local secrets tfvars (Option B: pipeline writes these; never commit)
-*.secret.tfvars
-secrets.auto.tfvars
+# Terraform directories anywhere
+**/.terraform/
+
+# Terraform state files anywhere
+**/*.tfstate
+**/*.tfstate.*
+
+# Crash logs
+**/crash.log
+
+# Override files
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+
+# Terraform lock file (OPTIONAL)
+# Most teams COMMIT this for reproducible provider versions
+# **/.terraform.lock.hcl

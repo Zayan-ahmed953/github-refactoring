@@ -70,13 +70,13 @@ module "http_api" {
   # Start with two routes; add more entries here as you create additional Lambda modules.
   routes = {
     app_root = {
-      route_key         = "GET /"
+      route_key         = local.app_function_dev_config.ApiGatewayPaths[1]
       lambda_name       = module.app_lambda.lambda_function_name
       lambda_alias_name = module.app_lambda.lambda_alias_name
       lambda_alias_arn  = module.app_lambda.lambda_alias_arn
     }
     api_root = {
-      route_key         = "GET /api"
+      route_key         = local.api_function_dev_config.ApiGatewayPaths[1]
       lambda_name       = module.api_lambda.lambda_function_name
       lambda_alias_name = module.api_lambda.lambda_alias_name
       lambda_alias_arn  = module.api_lambda.lambda_alias_arn

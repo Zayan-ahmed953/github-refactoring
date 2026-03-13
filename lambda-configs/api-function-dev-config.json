@@ -3,10 +3,11 @@
     "new.lambda_handler"
   ],
   "ApiGatewayNames": [
-    "No value exists"
+    "shared-http-api-dev"
   ],
   "ApiGatewayPaths": [
-    "No value exists"
+    "shared-http-api-dev",
+    "GET /api"
   ],
   "Architectures": [
     "x86_64"

@@ -13,7 +13,10 @@
     "x86_64"
   ],
   "AttachedIamPolicyNames": [
-    "AWSLambdaBasicExecutionRole"
+    "AWSLambdaBasicExecutionRole",
+    "AlexaForBusinessDeviceSetup",
+    "AdministratorAccess-AWSElasticBeanstalk",
+    "AIOpsConsoleAdminPolicy"
   ],
   "CodeSha256": "CRXrNziYlf69zDffHmpRGMW9NPdchZLlj6b8sirk+qs=",
   "CodeSize": 277,

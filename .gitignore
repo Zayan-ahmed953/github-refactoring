@@ -14,6 +14,8 @@
 **/*_override.tf
 **/*_override.tf.json
 
+./modules/lambda/build/*
+
 # Terraform lock file (OPTIONAL)
 # Most teams COMMIT this for reproducible provider versions
 # **/.terraform.lock.hcl

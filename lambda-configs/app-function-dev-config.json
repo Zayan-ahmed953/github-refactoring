@@ -30,7 +30,7 @@
   "FunctionArn": "arn:aws:lambda:us-east-1:084828598848:function:app-function-dev",
   "FunctionName": "app-function-dev",
   "Handler": "app.lambda_handler",
-  "LastModified": "2026-03-13T10:56:22.000+0000",
+  "LastModified": "2026-03-13T11:01:57.000+0000",
   "MemorySize": 128,
   "Role": "arn:aws:iam::084828598848:role/app-function-dev-exec",
   "Runtime": "python3.12",

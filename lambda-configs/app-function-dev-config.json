@@ -1,0 +1,41 @@
+{
+  "AllHandlers": [
+    "app.lambda_handler"
+  ],
+  "ApiGatewayNames": [
+    "shared-http-api-dev"
+  ],
+  "ApiGatewayPaths": [
+    "shared-http-api-dev",
+    "GET /"
+  ],
+  "Architectures": [
+    "x86_64"
+  ],
+  "AttachedIamPolicyNames": [
+    "AWSLambdaBasicExecutionRole"
+  ],
+  "CodeSha256": "WBq541FJg6456InxcqrvBtVhGO2gjxujuOgEbYabxRQ=",
+  "CodeSize": 278,
+  "Description": "No value exists",
+  "Environment": {
+    "Variables": {
+      "STAGE": "dev"
+    }
+  },
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "FunctionArn": "arn:aws:lambda:us-east-1:084828598848:function:app-function-dev",
+  "FunctionName": "app-function-dev",
+  "Handler": "app.lambda_handler",
+  "LastModified": "2026-03-13T10:35:27.000+0000",
+  "MemorySize": 128,
+  "Role": "arn:aws:iam::084828598848:role/app-function-dev-exec",
+  "Runtime": "python3.12",
+  "Timeout": 10,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "Version": "$LATEST"
+}

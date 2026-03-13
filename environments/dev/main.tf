@@ -15,13 +15,19 @@ provider "aws" {
   region = var.aws_region
 }
 
+
+locals {
+  app_function_dev_config = jsondecode(file("../../lambda-configs/app-function-dev-config.json"))
+  api_function_dev_config = jsondecode(file("../../lambda-configs/api-function-dev-config.json"))
+}
+
 module "app_lambda" {
   source = "../../modules/lambda"
 
   # Lambda for the core app functionality in dev
-  function_name = "app-function-dev"
-  handler       = "app.lambda_handler"
-  runtime       = "python3.12"
+  function_name = local.app_function_dev_config.FunctionName
+  handler       = local.app_function_dev_config.Handler
+  runtime       = local.app_function_dev_config.Runtime
 
   # Match the First-time-lambda-deploy.md contract: directory-based source_path
   # Points to the app_function directory under lambda_functions
@@ -29,21 +35,19 @@ module "app_lambda" {
 
   environment = var.environment
 
-  timeout     = 10
-  memory_size = 128
+  timeout     = local.app_function_dev_config.Timeout
+  memory_size = local.app_function_dev_config.MemorySize
 
-  environment_variables = {
-    STAGE = var.environment
-  }
+  environment_variables = local.app_function_dev_config.Environment.Variables
 }
 
 # Lambda backing the /api route in dev
 module "api_lambda" {
   source = "../../modules/lambda"
 
-  function_name = "api-function-dev"
-  handler       = "new.lambda_handler"
-  runtime       = "python3.12"
+  function_name = local.api_function_dev_config.FunctionName
+  handler       = local.api_function_dev_config.Handler
+  runtime       = local.api_function_dev_config.Runtime
 
   # Match the First-time-lambda-deploy.md contract: directory-based source_path
   # Points to the new_function directory under lambda_functions
@@ -51,13 +55,12 @@ module "api_lambda" {
 
   environment = var.environment
 
-  timeout     = 10
-  memory_size = 128
+  timeout     = local.api_function_dev_config.Timeout
+  memory_size = local.api_function_dev_config.MemorySize
 
-  environment_variables = {
-    STAGE = var.environment
-  }
+  environment_variables = local.api_function_dev_config.Environment.Variables
 }
+
 
 # Shared HTTP API that can route to one or many Lambda aliases
 module "http_api" {
@@ -81,3 +84,4 @@ module "http_api" {
   }
 
 }
+

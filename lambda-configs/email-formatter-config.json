@@ -1,0 +1,38 @@
+{
+  "AllHandlers": [
+    "lambda_function.lambda_handler"
+  ],
+  "ApiGatewayNames": [
+    "No value exists"
+  ],
+  "ApiGatewayPaths": [
+    "No value exists"
+  ],
+  "Architectures": [
+    "x86_64"
+  ],
+  "AttachedIamPolicyNames": [
+    "AWSLambdaBasicExecutionRole",
+    "AmazonSNSFullAccess"
+  ],
+  "CodeSize": 1265,
+  "Description": "No value exists",
+  "Environment": {
+    "Variables": "No value exists"
+  },
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "FunctionArn": "arn:aws:lambda:us-east-1:084828598848:function:email-formatter",
+  "FunctionName": "email-formatter",
+  "Handler": "lambda_function.lambda_handler",
+  "LastModified": "2026-03-08T09:37:41.000+0000",
+  "MemorySize": 128,
+  "Role": "arn:aws:iam::084828598848:role/security-hub-lambda-role",
+  "Runtime": "python3.14",
+  "Timeout": 3,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "Version": "$LATEST"
+}

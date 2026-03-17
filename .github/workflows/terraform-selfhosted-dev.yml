@@ -3,7 +3,7 @@ name: Terraform Dev (Self-hosted)
 on:
   push:
     branches:
-      - main
+    - none
 
 jobs:
   terraform-dev:

@@ -15,7 +15,7 @@
     "AWSLambdaBasicExecutionRole",
     "AmazonSNSFullAccess"
   ],
-  "CodeSize": 1265,
+  "CodeSize": 5374847,
   "Description": "No value exists",
   "Environment": {
     "Variables": {
@@ -28,7 +28,7 @@
   "FunctionArn": "arn:aws:lambda:us-east-1:084828598848:function:email-formatter",
   "FunctionName": "email-formatter",
   "Handler": "lambda_function.lambda_handler",
-  "LastModified": "2026-03-17T12:16:01.000+0000",
+  "LastModified": "2026-03-17T12:17:31.000+0000",
   "MemorySize": 256,
   "Role": "arn:aws:iam::084828598848:role/security-hub-lambda-role",
   "Runtime": "python3.14",
